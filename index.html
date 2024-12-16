@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Map</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+        integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="plugin/leaflet-search-master/leaflet-search-master/dist/leaflet-search.min.css">
+    <link rel="stylesheet" href="plugin/Leaflet.defaultextent-master/dist/leaflet.defaultextent.css" />
+    <style>
+        html,
+        body {
+            font-family: 'Fredoka', Arial, sans-serif;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+        }
+
+        #map {
+            width: 100%;
+            height: calc(100vh - 56px);
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg bg-danger-subtle">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#"><i class="fa-solid fa-map-location-dot"></i> Bangunan Pendidikan Kota
+                Yogyakarta</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+                aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="homepage.html" target="_blank">
+                            <i class="fa-solid fa-house"></i> Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="data.php" target="_blank">
+                            <i class="fa-solid fa-table"></i> Data</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#infoModal"><i
+                                class="fa-solid fa-circle-info"></i> Info</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div id="map"></div>
+
+    <!-- Info Modal -->
+    <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="infoModalLabel">Info Pembuat</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-striped table-bordered">
+                        <tr>
+                            <th>Nama</th>
+                            <td>Shafa Salsabila</td>
+                        </tr>
+                        <tr>
+                            <th>NIM</th>
+                            <td>23/519778/SV/23177</td>
+                        </tr>
+                        <tr>
+                            <th>Kelas</th>
+                            <td>B</td>
+                        </tr>
+                        <tr>
+                            <th>Github</th>
+                            <td><a href="https://github.com /syneticgweny" target="_blank"
+                                    rel="noopener noreferrer">https://github.com/syneticgweny</a></td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Feature Modal -->
+    <div class="modal fade" id="featureModal" tabindex="-1" aria-labelledby="featureModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="featureModalTitle"></h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="featureModalBody">
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="plugin/leaflet-search-master/leaflet-search-master/dist/leaflet-search.min.js"></script>
+    <script src="plugin/Leaflet.defaultextent-master/dist/leaflet.defaultextent.js"></script>
+    <script>
+        // Membuat peta Leaflet dengan titik pusat di koordinat Yogyakarta dan zoom level 13
+        var map = L.map("map").setView([-7.800527299546506, 110.3739852078307], 13);
+
+        // Tile Layer Base Map
+        var basemap = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            attribution:
+                '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        });
+
+        // Menambahkan basemap ke dalam peta
+        basemap.addTo(map);
+
+        var symbologyCategorized = {
+            "Gedongtengen": "#FFE4E1",    // Misty Rose
+            "Banguntapan": "#FFC0CB",     // Pink
+            "Mergangsan": "#FFB6C1",      // Light Pink
+            "Mantrijeron": "#FFD1DC",     // Pastel Pink
+            "Tegalrejo": "#FFA7C0",       // Soft Rose Pink
+            "Gondomanan": "#F4C2C2",      // Pale Pink
+            "Umbulharjo": "#FFEAEA",      // Very Light Pink
+            "Gondokusuman": "#FFD3E0",    // Soft Blush Pink
+            "Danurejan": "#FFF0F5",       // Lavender Blush
+        };
+
+        var currentBuffer = null; // Variable to store the current buffer
+
+        // GeoJSON Point Bangunan Pendidikan
+        var titikpdd = L.geoJSON(null, {
+            // Style
+            pointToLayer: function (feature, latlng) {
+                return L.marker(latlng, {
+                    icon: L.icon({
+                        iconUrl: "icon/marker.png", // icon marker
+                        iconSize: [28, 28], // ukuran icon
+                        iconAnchor: [24, 18], // posisi icon terhadap titik (point)
+                        popupAnchor: [0, -48], // posisi popup terhadap icon
+                        tooltipAnchor: [-16, -30], // posisi tooltip terhadap icon
+                    }),
+                });
+            },
+            // onEachFeature
+            onEachFeature: function (feature, layer) {
+                // variable popup content
+                var popup_content = "Nama: " + feature.properties.Keterangan + "<br>" +
+                    "Koordin at: " + feature.geometry.coordinates[1] + ", " + feature.geometry.coordinates[0];
+
+                layer.on({
+                    click: function (e) {
+                        //pendidikan.bindPopup(popup_content);
+
+                        $("#featureModalTitle").html("Bangunan Pendidikan");
+                        $("#featureModalBody").html(feature.properties.Keterangan);
+                        $("#featureModalBody").html(popup_content);
+                        $("#featureModal").modal("show");
+
+                        // Remove previous buffer if it exists
+                        if (currentBuffer) {
+                            map.removeLayer(currentBuffer);
+                        }
+
+                        // Create new buffer
+                        currentBuffer = L.circle(e.latlng, {
+                            radius: 1500,
+                            color: "red",
+                            fillColor: "red",
+                            fillOpacity: 0.2,
+                        });
+                        currentBuffer.addTo(map);
+                    },
+                    mouseover: function (e) {
+                        titikpdd.bindTooltip(feature.properties.Keterangan, {
+                            direction: "left",
+                            sticky: true,
+                        });
+                    },
+                });
+            },
+        });
+
+        $.getJSON("data/titikpdd.geojson", function (data) {
+            titikpdd.addData(data); // Menambahkan data ke dalam GeoJSON Point Bangunan Pendidikan
+            map.addLayer(titikpdd); // Menambahkan GeoJSON Point Bangunan Pendidikan ke dalam peta
+            map.fitBounds(titikpdd.getBounds());
+        });
+
+        // GeoJSON Polyline Jalan
+        map.createPane('panejalan');
+        map.getPane("panejalan").style.zIndex = 401;
+        var jalan = L.geoJSON(null, {
+            pane: 'panejalan',
+            // Style
+            style: function (feature) {
+                return {
+                    color: "red",
+                    opacity: 1,
+                    weight: 1,
+                };
+            },
+            // onEachFeature
+            onEachFeature: function (feature, layer) {
+                // variable popup content
+                var popup_content = "Fungsi: " + feature.properties.REMARK + "<br>" +
+                    "Panjang (m): " + feature.properties.panjang_m;
+
+                layer.on({
+                    click: function (e) {
+                        //jalan.bindPopup(popup_content);
+
+                        $("#featureModalTitle").html("Jalan");
+                        $("#featureModalBody").html("Fungsi: " + feature.properties.REMARK + "<br>" +
+                            "Panjang (m): " + feature.properties.panjang_m);
+                        $("#featureModalBody").html(popup_content);
+                        $("#featureModal").modal("show");
+                    },
+                    mouseover: function (e) {
+                        jalan.bindTooltip(feature.properties.REMARK, {
+                            direction: "auto",
+                            sticky: true,
+                        });
+                    },
+                });
+            },
+        });
+
+        $.getJSON("data/jalanykk.geojson", function (data) {
+            jalan.addData(data); // Menambahkan data ke dalam GeoJSON Polyline Jalan
+            map.addLayer(jalan); // Menambahkan GeoJSON Polyline Jalan ke dalam peta
+        });
+
+        // GeoJSON Polygon Administrasi Yogyakarta
+        map.createPane('paneadmmin');
+        map.getPane("paneadmmin").style.zIndex = 301;
+        var adm = L.geoJSON(null, {
+            pane: 'paneadmmin',
+            // Style
+            style: function (feature) {
+                return {
+                    color: "black",
+                    opacity: 1,
+                    weight: 1,
+                    fillColor: symbologyCategorized[feature.properties.WADMKC],
+                    fillOpacity: 0.8,
+                };
+            },
+            // onEachFeature
+            onEachFeature: function (feature, layer) {
+                // variable popup content
+                var popup_content = "Kecamatan: " + feature.properties.WADMKC + "<br>" +
+                    "Desa: " + feature.properties.NAMOBJ;
+
+                layer.on({
+                    click: function (e) {
+                        $("#featureModalTitle").html("Batas Administrasi");
+                        $("#featureModalBody").html("Kecamatan: " + feature.properties.WADMKC + "<br>" +
+                            "Desa: " + feature.properties.NAMOBJ);
+                        $("#featureModalBody").html(popup_content);
+                        $("#featureModal").modal("show");
+                    },
+                    mouseover: function (e) {
+                        adm.bindTooltip(feature.properties.WADMKC, {
+                            direction: "auto",
+                            sticky: true,
+                        });
+                    },
+                });
+            },
+        });
+
+        $.getJSON("data/adminyk.geojson", function (data) {
+            adm.addData(data); // Menambahkan data ke dalam GeoJSON Polygon Jumlah Penduduk
+            map.addLayer(adm); // Menambahkan GeoJSON Polygon Jumlah Penduduk ke dalam peta
+        });
+
+        // Control Layer
+        var baseMaps = {
+            "Basemap": basemap,
+        };
+
+        var overlayMaps = {
+            "Bangunan Pendidikan": titikpdd,
+            "Jalan": jalan,
+            "Batas Administrasi": adm,
+        };
+
+        var controllayer = L.control.layers(baseMaps, overlayMaps);
+        controllayer.addTo(map);
+
+        // Control Extent
+        L.control.defaultExtent()
+            .addTo(map);
+
+        //Search Control
+        var searchControl = new L.Control.Search({
+            layer: adm,
+            propertyName: 'WADMKC',
+            marker: false,
+            moveToLocation: function (latlng, title, map) {
+                var zoom = map.getBoundsZoom(latlng.layer.getBounds());
+                map.setView(latlng, zoom); // access the zoom
+            }
+        });
+
+        searchControl.on('search:locationfound', function (e) {
+            e.layer.setStyle({ fillColor: '#3f0', color: '#0f0' });
+            if (e.layer._popup)
+                e.layer.openPopup();
+        }).on('search:collapsed', function (e) {
+            adm.eachLayer(function (layer) {	//restore feature color
+                adm.resetStyle(layer);
+            });
+        });
+
+        map.addControl(searchControl);  //initialize search control
+
+        //watermark
+        L.Control.Watermark = L.Control.extend({
+            onAdd: function (map) {
+                var img = L.DomUtil.create('img');
+                img.src = 'image/logoSV.png';
+                img.style.width = '200px';
+                return img;
+            },
+            onRemove: function (map) {
+                // Nothing to do here
+            }
+        });
+
+        L.control.watermark = function (opts) {
+            return new L.Control.Watermark(opts);
+        }
+
+        L.control.watermark({ position: 'bottomleft' }).addTo(map);
+    </script>
+</body>
+
+</html>
